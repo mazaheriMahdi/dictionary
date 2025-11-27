@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  dictionary:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dictionary-service
+    ports:
+      - "8082:8080"
+    volumes:
+      # Mount dictionary file if you want to update it without rebuilding
+      - ./dictionary.gob:/app/dictionary.gob:ro
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+

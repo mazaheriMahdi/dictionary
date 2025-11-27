@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Frontend
+frontend/node_modules
+frontend/dist
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.vite
+
+# Go
+*.test
+*.out
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+.docker/
+

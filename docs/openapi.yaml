@@ -1,0 +1,179 @@
+openapi: 3.0.3
+info:
+  title: Dictionary Service API
+  description: A high-performance dictionary service with fast word lookups and autocomplete functionality
+  version: 1.0.0
+  contact:
+    name: Dictionary Service
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check if the service is running and healthy
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+
+  /api/v1/words/{word}:
+    get:
+      summary: Lookup word
+      description: Get the meanings for a specific English word
+      operationId: lookupWord
+      tags:
+        - Words
+      parameters:
+        - name: word
+          in: path
+          required: true
+          description: The English word to lookup
+          schema:
+            type: string
+            example: hello
+      responses:
+        '200':
+          description: Word found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  word:
+                    type: string
+                    example: hello
+                  meanings:
+                    type: array
+                    items:
+                      type: string
+                    example: ["سلام", "درود"]
+        '404':
+          description: Word not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/suggest/{prefix}:
+    get:
+      summary: Get autocomplete suggestions
+      description: Get word suggestions that start with a given prefix. Useful for implementing autocomplete functionality.
+      operationId: suggestWords
+      tags:
+        - Words
+      parameters:
+        - name: prefix
+          in: path
+          required: true
+          description: The prefix to search for (case-insensitive)
+          schema:
+            type: string
+            example: hel
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of suggestions to return (default: 20, max: 100)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Suggestions returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prefix:
+                    type: string
+                    example: hel
+                  suggestions:
+                    type: array
+                    items:
+                      type: string
+                    example: ["hello", "help", "helmet", "helpless"]
+                  count:
+                    type: integer
+                    example: 4
+        '400':
+          description: Bad request (invalid limit parameter)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/stats:
+    get:
+      summary: Get statistics
+      description: Get statistics about the dictionary
+      operationId: getStats
+      tags:
+        - Statistics
+      responses:
+        '200':
+          description: Statistics returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_words:
+                    type: integer
+                    example: 910723
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: Word not found
+        word:
+          type: string
+          description: The word that was searched (only present for 404 errors)
+          example: nonexistentword
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Words
+    description: Word lookup and autocomplete endpoints
+  - name: Statistics
+    description: Dictionary statistics endpoints
+

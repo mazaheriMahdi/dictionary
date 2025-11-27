@@ -1,0 +1,25 @@
+# Dockerfile for Dictionary Converter
+# Use this to convert JSON to GOB without installing Go locally
+
+FROM golang:1.25-alpine
+
+WORKDIR /data
+
+# Copy converter source
+COPY cmd/convert/ ./cmd/convert/
+COPY internal/dictionary/ ./internal/dictionary/
+COPY go.mod go.sum* ./
+
+# Build converter
+RUN go build -o /usr/local/bin/convert ./cmd/convert
+
+# Set working directory for data
+WORKDIR /data
+
+# Entry point
+ENTRYPOINT ["/usr/local/bin/convert"]
+
+# Usage:
+# docker build -f Dockerfile.converter -t dict-converter .
+# docker run --rm -v $(pwd):/data dict-converter dictionary.json dictionary.gob
+
