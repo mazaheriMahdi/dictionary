@@ -411,4 +411,4 @@ If you find this project useful, please consider giving it a star! ⭐
 
 ---
 
-Made with ❤️ by the Dictionary Service team
+Made with ❤️ by the Mahdi Mazaheri
