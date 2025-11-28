@@ -18,11 +18,15 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/serv
 # Stage 2: Build React frontend
 FROM node:20-alpine AS frontend-builder
 
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /build
 
-# Copy package files
+# Copy package files and lockfile
 COPY frontend/package*.json ./
-RUN npm ci
+COPY frontend/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copy frontend source
 COPY frontend/ ./
@@ -33,7 +37,7 @@ COPY frontend/ ./
 ARG VITE_BASE_PATH=/
 ENV VITE_API_URL=""
 ENV VITE_BASE_PATH=${VITE_BASE_PATH}
-RUN npm run build
+RUN pnpm run build
 
 # Stage 3: Final image
 FROM alpine:latest
