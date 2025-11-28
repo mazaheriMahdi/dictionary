@@ -26,6 +26,22 @@
     outline-offset: 2px;
   }
   
+  /* Remove white borders from HeroUI inputs */
+  [data-slot="input-wrapper"]:focus-within {
+    box-shadow: none !important;
+  }
+  
+  [data-slot="input-wrapper"]:focus-within * {
+    outline: none !important;
+  }
+  
+  /* Remove any white ring/border on focus */
+  .group-data-\[focus\=true\]\:ring-0,
+  .group-data-\[focus\=true\]\:ring-offset-0 {
+    --tw-ring-offset-width: 0px !important;
+    --tw-ring-width: 0px !important;
+  }
+  
   /* Softer text rendering for long reading */
   p, span, div {
     @apply text-slate-700 dark:text-slate-300;

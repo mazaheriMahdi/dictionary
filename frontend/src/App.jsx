@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Input, Button, Card, CardBody, CardHeader, Chip, Spinner, Autocomplete, AutocompleteItem, Switch } from '@heroui/react'
+import { Input, Button, Card, CardBody, CardHeader, Chip, Skeleton, Autocomplete, AutocompleteItem, Switch } from '@heroui/react'
 import { MagnifyingGlassIcon, BookOpenIcon, SparklesIcon, MoonIcon, SunIcon } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -269,7 +269,7 @@ function App() {
                 inputProps={{
                   classNames: {
                     input: "text-lg font-medium",
-                    inputWrapper: "h-16 shadow-lg backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border-2 border-default-200/40 dark:border-[#2a2a2a]/40 hover:border-[#0072f5]/20 dark:hover:border-[#0072f5]/20 focus-within:!border-[#0072f5]/40 dark:focus-within:!border-[#0072f5]/40 transition-all duration-300",
+                    inputWrapper: "h-16 shadow-lg backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border-2 border-default-200/40 dark:border-[#2a2a2a]/40 hover:border-[#0072f5]/20 dark:hover:border-[#0072f5]/20 focus-within:!border-[#0072f5]/40 dark:focus-within:!border-[#0072f5]/40 transition-all duration-300 [&:focus-within]:!border-[#0072f5]/40 [&:focus-within]:dark:!border-[#0072f5]/40 [&:focus-within]:!ring-0 [&:focus-within]:!ring-offset-0",
                     innerWrapper: "gap-2",
                   },
                 }}
@@ -325,54 +325,53 @@ function App() {
           </form>
         </motion.div>
 
-        {/* Loading State */}
-        <AnimatePresence>
-          {loading && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-              className="text-center py-12"
-            >
-              <Card className="backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 shadow-xl inline-block px-8 py-6">
-                <CardBody className="flex flex-col items-center gap-4">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
-                    <Spinner size="lg" color="primary" />
-                  </motion.div>
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-slate-700 dark:text-slate-300 font-medium"
-                  >
-                    Loading...
-                  </motion.p>
-                </CardBody>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Results Container - Fixed to prevent layout shift */}
+        <div className="min-h-[400px]">
+          <AnimatePresence mode="wait">
+            {loading && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
+                  <CardHeader className="flex gap-3 pb-2">
+                    <Skeleton className="rounded-lg">
+                      <div className="h-8 w-8 rounded-lg bg-default-200 dark:bg-default-100" />
+                    </Skeleton>
+                    <Skeleton className="rounded-lg">
+                      <div className="h-8 w-48 rounded-lg bg-default-200 dark:bg-default-100" />
+                    </Skeleton>
+                  </CardHeader>
+                  <CardBody>
+                    <Skeleton className="rounded-lg mb-4">
+                      <div className="h-6 w-32 rounded-lg bg-default-200 dark:bg-default-100" />
+                    </Skeleton>
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((index) => (
+                        <Skeleton key={index} className="rounded-lg">
+                          <div className="h-20 w-full rounded-lg bg-default-200 dark:bg-default-100" />
+                        </Skeleton>
+                      ))}
+                    </div>
+                  </CardBody>
+                </Card>
+              </motion.div>
+            )}
 
-        {/* Results */}
-        <AnimatePresence mode="wait">
-          {!loading && selectedWord && (
-            <motion.div
-              key={selectedWord}
-              initial={{ opacity: 0, y: 30, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ 
-                duration: 0.5, 
-                type: "spring",
-                stiffness: 100,
-                damping: 15
-              }}
-            >
-              <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
+            {!loading && selectedWord && (
+              <motion.div
+                key={selectedWord}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="w-full"
+              >
+                <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
                 <CardHeader className="flex gap-3 pb-2">
                   <motion.div
                     initial={{ rotate: -180, scale: 0 }}
@@ -469,10 +468,11 @@ function App() {
                     </motion.div>
                   )}
                 </CardBody>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                </Card>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Empty State */}
         <AnimatePresence>
