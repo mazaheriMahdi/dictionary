@@ -3,7 +3,31 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    @apply border-default-200 dark:border-default-100;
+  }
+  
   body {
-    @apply bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800;
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    /* Reduce eye strain - optimized for long reading */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  html {
+    @apply transition-colors duration-300;
+  }
+  
+  /* Very soft focus rings for eye comfort */
+  *:focus-visible {
+    outline: 2px solid rgba(0, 114, 245, 0.3);
+    outline-offset: 2px;
+  }
+  
+  /* Softer text rendering for long reading */
+  p, span, div {
+    @apply text-slate-700 dark:text-slate-300;
   }
 }

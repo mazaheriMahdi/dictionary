@@ -1,8 +1,11 @@
+import { heroui } from "@heroui/react";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -22,6 +25,102 @@ export default {
       },
     },
   },
-  plugins: [],
+  darkMode: "class",
+  plugins: [heroui({
+    themes: {
+      light: {
+        colors: {
+          background: '#FFFFFF',
+          foreground: '#11181C',
+          primary: {
+            50: '#f0f9ff',
+            100: '#e0f2fe',
+            200: '#bae6fd',
+            300: '#7dd3fc',
+            400: '#38bdf8',
+            500: '#0ea5e9',
+            600: '#0284c7',
+            700: '#0369a1',
+            800: '#075985',
+            900: '#0c4a6e',
+            DEFAULT: '#0ea5e9',
+            foreground: '#ffffff',
+          },
+          default: {
+            50: '#fafafa',
+            100: '#f4f4f5',
+            200: '#e4e4e7',
+            300: '#d4d4d8',
+            400: '#a1a1aa',
+            500: '#71717a',
+            600: '#52525b',
+            700: '#3f3f46',
+            800: '#27272a',
+            900: '#18181b',
+            DEFAULT: '#f4f4f5',
+            foreground: '#11181C',
+          },
+          content1: '#FFFFFF',
+          content2: '#fafafa',
+          content3: '#f4f4f5',
+          content4: '#e4e4e7',
+        },
+      },
+      dark: {
+        colors: {
+          // Much lighter dark mode for eye comfort
+          background: '#0f0f0f',
+          foreground: '#e5e7eb',
+          primary: {
+            50: '#001a33',
+            100: '#003366',
+            200: '#004d99',
+            300: '#0066cc',
+            400: '#0080ff',
+            500: '#0072f5',
+            600: '#0059c2',
+            700: '#00408f',
+            800: '#00275c',
+            900: '#000e29',
+            DEFAULT: '#0072f5',
+            foreground: '#ffffff',
+          },
+          secondary: {
+            50: '#2d0019',
+            100: '#5a0033',
+            200: '#87004d',
+            300: '#b40066',
+            400: '#e10080',
+            500: '#ff0080',
+            600: '#cc0066',
+            700: '#99004d',
+            800: '#660033',
+            900: '#33001a',
+            DEFAULT: '#ff0080',
+            foreground: '#ffffff',
+          },
+          default: {
+            // Warmer, lighter grays for reading comfort
+            50: '#1a1a1a',
+            100: '#252525',
+            200: '#2a2a2a',
+            300: '#353535',
+            400: '#404040',
+            500: '#4a4a4a',
+            600: '#5a5a5a',
+            700: '#6a6a6a',
+            800: '#7a7a7a',
+            900: '#8a8a8a',
+            DEFAULT: '#252525',
+            foreground: '#e5e7eb',
+          },
+          content1: '#1a1a1a',
+          content2: '#252525',
+          content3: '#2a2a2a',
+          content4: '#353535',
+        },
+      },
+    },
+  })],
 }
 
