@@ -15,6 +15,7 @@ function App() {
   const [selectedWord, setSelectedWord] = useState(null)
   const [meanings, setMeanings] = useState([])
   const [loading, setLoading] = useState(false)
+  const [minLoadingTime, setMinLoadingTime] = useState(false) // Minimum loading display time
   const [stats, setStats] = useState(null)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [isDark, setIsDark] = useState(() => {
@@ -90,8 +91,12 @@ function App() {
     if (!word.trim()) return
 
     setLoading(true)
+    setMinLoadingTime(true)
     setSelectedWord(word)
     setShowSuggestions(false)
+
+    // Minimum loading time for smooth UX (500ms)
+    const minTimePromise = new Promise(resolve => setTimeout(resolve, 500))
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/words/${encodeURIComponent(word)}`)
@@ -105,7 +110,11 @@ function App() {
       console.error('Failed to fetch word:', error)
       setMeanings([])
     } finally {
+      // Wait for both API call and minimum time
+      await minTimePromise
       setLoading(false)
+      // Small delay before hiding min loading state for smooth transition
+      setTimeout(() => setMinLoadingTime(false), 100)
     }
   }
 
@@ -326,165 +335,167 @@ function App() {
         </motion.div>
 
         {/* Results Container - Fixed to prevent layout shift */}
-        <div className="min-h-[400px]">
-          <AnimatePresence mode="wait">
-            {loading && (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="w-full"
-              >
-                <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
+        {(loading || minLoadingTime || selectedWord) && (
+          <div className="min-h-[400px] mb-8">
+            <AnimatePresence mode="wait">
+              {(loading || minLoadingTime) && (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full"
+                >
+                  <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
+                    <CardHeader className="flex gap-3 pb-2">
+                      <Skeleton className="rounded-lg">
+                        <div className="h-8 w-8 rounded-lg bg-default-200 dark:bg-default-100" />
+                      </Skeleton>
+                      <Skeleton className="rounded-lg">
+                        <div className="h-8 w-48 rounded-lg bg-default-200 dark:bg-default-100" />
+                      </Skeleton>
+                    </CardHeader>
+                    <CardBody>
+                      <Skeleton className="rounded-lg mb-4">
+                        <div className="h-6 w-32 rounded-lg bg-default-200 dark:bg-default-100" />
+                      </Skeleton>
+                      <div className="space-y-3">
+                        {[1, 2, 3].map((index) => (
+                          <Skeleton key={index} className="rounded-lg">
+                            <div className="h-20 w-full rounded-lg bg-default-200 dark:bg-default-100" />
+                          </Skeleton>
+                        ))}
+                      </div>
+                    </CardBody>
+                  </Card>
+                </motion.div>
+              )}
+
+              {!loading && !minLoadingTime && selectedWord && (
+                <motion.div
+                  key={selectedWord}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full"
+                >
+                  <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
                   <CardHeader className="flex gap-3 pb-2">
-                    <Skeleton className="rounded-lg">
-                      <div className="h-8 w-8 rounded-lg bg-default-200 dark:bg-default-100" />
-                    </Skeleton>
-                    <Skeleton className="rounded-lg">
-                      <div className="h-8 w-48 rounded-lg bg-default-200 dark:bg-default-100" />
-                    </Skeleton>
+                    <motion.div
+                      initial={{ rotate: -180, scale: 0 }}
+                      animate={{ rotate: 0, scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                      whileHover={{ rotate: 15, scale: 1.1 }}
+                    >
+                      <BookOpenIcon className="h-8 w-8 text-[#0072f5]/80 dark:text-[#0072f5]/80" />
+                    </motion.div>
+                    <motion.h2
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-3xl font-bold text-foreground"
+                    >
+                      {selectedWord}
+                    </motion.h2>
                   </CardHeader>
                   <CardBody>
-                    <Skeleton className="rounded-lg mb-4">
-                      <div className="h-6 w-32 rounded-lg bg-default-200 dark:bg-default-100" />
-                    </Skeleton>
-                    <div className="space-y-3">
-                      {[1, 2, 3].map((index) => (
-                        <Skeleton key={index} className="rounded-lg">
-                          <div className="h-20 w-full rounded-lg bg-default-200 dark:bg-default-100" />
-                        </Skeleton>
-                      ))}
-                    </div>
-                  </CardBody>
-                </Card>
-              </motion.div>
-            )}
-
-            {!loading && selectedWord && (
-              <motion.div
-                key={selectedWord}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="w-full"
-              >
-                <Card className="shadow-xl backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 hover:shadow-2xl hover:bg-white dark:hover:bg-[#1f1f1f] transition-all duration-300">
-                <CardHeader className="flex gap-3 pb-2">
-                  <motion.div
-                    initial={{ rotate: -180, scale: 0 }}
-                    animate={{ rotate: 0, scale: 1 }}
-                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                    whileHover={{ rotate: 15, scale: 1.1 }}
-                  >
-                    <BookOpenIcon className="h-8 w-8 text-[#0072f5]/80 dark:text-[#0072f5]/80" />
-                  </motion.div>
-                  <motion.h2
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-3xl font-bold text-foreground"
-                  >
-                    {selectedWord}
-                  </motion.h2>
-                </CardHeader>
-                <CardBody>
-                  {meanings.length > 0 ? (
-                    <div>
-                      <motion.h3
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                        className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4"
-                      >
-                        Meanings:
-                      </motion.h3>
-                      <div className="space-y-3">
-                        <AnimatePresence>
-                          {meanings.map((meaning, index) => (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, x: -30, scale: 0.9 }}
-                              animate={{ opacity: 1, x: 0, scale: 1 }}
-                              transition={{ 
-                                delay: index * 0.1 + 0.5, 
-                                duration: 0.4,
-                                type: "spring",
-                                stiffness: 100
-                              }}
-                              whileHover={{ 
-                                scale: 1.02, 
-                                x: 8,
-                                transition: { duration: 0.2 }
-                              }}
-                              exit={{ opacity: 0, x: -20 }}
-                            >
-                              <Card className="backdrop-blur-sm bg-slate-50/80 dark:bg-[#252525]/80 border-l-4 border-[#0072f5]/40 dark:border-[#0072f5]/40 shadow-sm hover:shadow-md hover:bg-slate-100/80 dark:hover:bg-[#2a2a2a]/80 transition-all hover:scale-[1.01] border border-slate-200/50 dark:border-[#2a2a2a]/50">
-                                <CardBody className="flex flex-row items-start gap-3 py-4">
-                                  <motion.div
-                                    initial={{ scale: 0, rotate: -180 }}
-                                    animate={{ scale: 1, rotate: 0 }}
-                                    transition={{ 
-                                      delay: index * 0.1 + 0.6, 
-                                      type: "spring",
-                                      stiffness: 200
-                                    }}
-                                    whileHover={{ scale: 1.1, rotate: 5 }}
-                                  >
-                                    <Chip
-                                      variant="flat"
-                                      className="min-w-[2rem] justify-center font-bold shadow-sm bg-[#0072f5]/15 dark:bg-[#0072f5]/15 text-[#0072f5] dark:text-[#0072f5] border border-[#0072f5]/25 dark:border-[#0072f5]/25"
+                    {meanings.length > 0 ? (
+                      <div>
+                        <motion.h3
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4 }}
+                          className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-4"
+                        >
+                          Meanings:
+                        </motion.h3>
+                        <div className="space-y-3">
+                          <AnimatePresence>
+                            {meanings.map((meaning, index) => (
+                              <motion.div
+                                key={index}
+                                initial={{ opacity: 0, x: -30, scale: 0.9 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                transition={{ 
+                                  delay: index * 0.1 + 0.5, 
+                                  duration: 0.4,
+                                  type: "spring",
+                                  stiffness: 100
+                                }}
+                                whileHover={{ 
+                                  scale: 1.02, 
+                                  x: 8,
+                                  transition: { duration: 0.2 }
+                                }}
+                                exit={{ opacity: 0, x: -20 }}
+                              >
+                                <Card className="backdrop-blur-sm bg-slate-50/80 dark:bg-[#252525]/80 border-l-4 border-[#0072f5]/40 dark:border-[#0072f5]/40 shadow-sm hover:shadow-md hover:bg-slate-100/80 dark:hover:bg-[#2a2a2a]/80 transition-all hover:scale-[1.01] border border-slate-200/50 dark:border-[#2a2a2a]/50">
+                                  <CardBody className="flex flex-row items-start gap-3 py-4">
+                                    <motion.div
+                                      initial={{ scale: 0, rotate: -180 }}
+                                      animate={{ scale: 1, rotate: 0 }}
+                                      transition={{ 
+                                        delay: index * 0.1 + 0.6, 
+                                        type: "spring",
+                                        stiffness: 200
+                                      }}
+                                      whileHover={{ scale: 1.1, rotate: 5 }}
                                     >
-                                      {index + 1}
-                                    </Chip>
-                                  </motion.div>
-                                  <motion.span
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: index * 0.1 + 0.7 }}
-                                    className="text-foreground text-lg flex-1"
-                                  >
-                                    {meaning}
-                                  </motion.span>
-                                </CardBody>
-                              </Card>
-                            </motion.div>
-                          ))}
-                        </AnimatePresence>
+                                      <Chip
+                                        variant="flat"
+                                        className="min-w-[2rem] justify-center font-bold shadow-sm bg-[#0072f5]/15 dark:bg-[#0072f5]/15 text-[#0072f5] dark:text-[#0072f5] border border-[#0072f5]/25 dark:border-[#0072f5]/25"
+                                      >
+                                        {index + 1}
+                                      </Chip>
+                                    </motion.div>
+                                    <motion.span
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: 1 }}
+                                      transition={{ delay: index * 0.1 + 0.7 }}
+                                      className="text-foreground text-lg flex-1"
+                                    >
+                                      {meaning}
+                                    </motion.span>
+                                  </CardBody>
+                                </Card>
+                              </motion.div>
+                            ))}
+                          </AnimatePresence>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4 }}
-                      className="text-center py-8"
-                    >
-                      <p className="text-slate-600 dark:text-slate-400 text-lg">
-                        No meanings found for "{selectedWord}"
-                      </p>
-                    </motion.div>
-                  )}
-                </CardBody>
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-center py-8"
+                      >
+                        <p className="text-slate-600 dark:text-slate-400 text-lg">
+                          No meanings found for "{selectedWord}"
+                        </p>
+                      </motion.div>
+                    )}
+                  </CardBody>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
-        {/* Empty State */}
+        {/* Empty State - Centered */}
         <AnimatePresence>
-          {!loading && !selectedWord && (
+          {!loading && !minLoadingTime && !selectedWord && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.4 }}
-              className="text-center py-12"
+              className="flex items-center justify-center min-h-[60vh] -mt-20"
             >
-              <Card className="backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 shadow-xl inline-block px-12 py-8">
+              <Card className="backdrop-blur-xl bg-white/90 dark:bg-[#1a1a1a]/90 border border-default-200/30 dark:border-[#2a2a2a]/40 shadow-xl px-12 py-8">
                 <CardBody className="flex flex-col items-center gap-4">
                   <motion.div
                     animate={{ 
